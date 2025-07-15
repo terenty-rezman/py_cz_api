@@ -12,7 +12,7 @@ setup(
     author_email='jqxl+git@ya.ru',
     license='GNU General Public License v3.0',
     packages=['py_cz_api'],
-    install_requires=install_requires,
+    # install_requires=install_requires,
     include_package_data=True,
     classifiers=[
         'Programming Language :: Python :: 3'

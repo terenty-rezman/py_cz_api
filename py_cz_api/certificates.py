@@ -44,21 +44,25 @@ class Certificate:
     def __repr__(self) -> str:
         return f'Lib: cz_api Class: Certificate\nserialnumber: {self.serialnumber}\nowner: {self.owner}'
 
-    def sign_data(self, data: str, encoding: str = 'ascii') -> str:
+    def sign_data(self, data: str, encoding: str = 'ascii', detached = False) -> str:
         '''Шифрует входящий текст в Base64'''
+
+        CADESCOM_BASE64_TO_BINARY = 1 # Входные данные пришли в Base64
+        CADESCOM_CADES_TYPE = 1 # Тип усовершенствованной подписи
+        CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME = 0 # Атрибут штампа времени подписи
 
         Signer = Dispatch('CAdESCOM.CPSigner')
         Signer.Certificate = self.CertObj
         Signing_attr = Dispatch('CAdESCOM.CPAttribute')
-        Signing_attr.Name = 0
+        Signing_attr.Name = CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME
         Signing_attr.Value = datetime.now()
         Signer.AuthenticatedAttributes2.Add(Signing_attr)
         signed_data = Dispatch('CAdESCOM.CadesSignedData')
-        signed_data.ContentEncoding = 1
+        signed_data.ContentEncoding = CADESCOM_BASE64_TO_BINARY
 
         data_bytes = data.encode(encoding)
         base64_bytes = b64encode(data_bytes)
         base64_data = base64_bytes.decode(encoding)
         signed_data.Content = base64_data
-        encrypted_str = signed_data.SignCades(Signer, 1, False, 0)
+        encrypted_str = signed_data.SignCades(Signer, CADESCOM_CADES_TYPE, detached, 0)
         return encrypted_str
